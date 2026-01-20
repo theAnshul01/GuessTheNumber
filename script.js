@@ -1,35 +1,102 @@
-let randomNumber = (Math.random()*100+1).toFixed(0);
-console.log("Random Number between 1 and 100: " + randomNumber);
+let randomNumber = parseInt(Math.random()*100 + 1)
+console.log(`random number: ${randomNumber}`)
 
-const submitBtn = document.querySelector('#submitBtn');
+// accessing the DOM elements
 const userInput = document.querySelector('#guessValue');
-console.log(userInput);
-const message = document.querySelector('#message');
-const resetBtn = document.querySelector('#resetBtn');
-const userGuessesDisplay = document.querySelector('#userGuesses');
-const remainingGuessesDisplay = document.querySelector('#remainingGuesses');
-const resultDisplay = document.querySelector('#result');
+// console.log(userInput)
+const submitBtn = document.querySelector('#submitBtn')
+const result = document.querySelector('#result')
+const remainingGuessesDisplay = document.querySelector('#remainingGuesses')
+const userGuesses = document.querySelector('#userGuesses')
+const resetBtn = document.querySelector('#resetBtn')
 
-let userGuesses = [];
-
+// game values
 let initialGuesses = 10;
-let remainingGuesses = initialGuesses;
+let currentGuessCount = 0;
+let guesses = [];
 
+
+//  @handle submit button
 submitBtn.addEventListener('click', (e)=>{
     e.preventDefault();
-    ValidateGuess(userInput.value);
+    ValidateUserInput(userInput)
+    userInput.value = '';
+    currentGuessCount++;
+    if(initialGuesses - currentGuessCount == 0){
+        displayMessage(`Better Luck Next Time!! The Number is ${randomNumber} <br> Restart the game`)
+        userInput.setAttribute('disabled', '')
+        submitBtn.setAttribute('disabled', '')
+        
+    }
+    remainingGuessCount();
 })
 
-// @validateGuess
-function ValidateGuess(userInput){
-    console.log(userInput);
-    let userVal = parseInt(userInput);
-    
-    if(userVal < 1 || userVal > 100 || isNaN(userVal)){
-        alert(`Please enter a valid number`);
-    }
+const remainingGuessCount = () => {
+    remainingGuessesDisplay.innerHTML = `Remaining Guesses: ${initialGuesses - currentGuessCount}`
+}
 
-    if(randomNumber === userVal){
-        resultDisplay.innerHTML += `You Won!`
+resetBtn.addEventListener('click', ()=>{
+    restartGame();
+})
+
+// @validate the userInput
+const ValidateUserInput = (userInput) => {
+    const inputValue = parseInt(userInput.value);
+    
+    console.log(`guesses: ${guesses}`)
+
+    console.log(`input: ${inputValue}`)
+    
+    // check for not allowed inputs
+    if(inputValue > 100 || inputValue < 1 || isNaN(inputValue)){
+        alert('Enter Valid Number: 1 to 100')
+    } else if (inputValue == randomNumber){
+        displayMessage(`You Won!! The number is ${randomNumber} <br> Click Restart to play again!`);
+        userInput.setAttribute('disabled', '')
+        submitBtn.setAttribute('disabled', '')
+        guesses.push(inputValue);
+    guessDisplay(guesses)
+        // endGame();
+    } else if (inputValue != randomNumber){
+        displayGuessDirection(inputValue)
+        guesses.push(inputValue);
+    guessDisplay(guesses)
     }
 }
+
+const guessDisplay = (guesses) => {
+    userGuesses.innerHTML = `Your Guesses: ${guesses}`
+}
+
+const endGame = () => {
+    userInput.value = '';
+    // restartGame()
+    // randomNumber = parseInt(Math.random()*100 + 1)
+    console.log(`from endgame: ${randomNumber}`)
+       
+}
+
+const restartGame = () => {
+    randomNumber = parseInt(Math.random()*100 + 1)
+    initialGuesses = 10;
+    currentGuessCount = 0;
+    remainingGuessCount()
+    displayMessage('')
+    userInput.removeAttribute('disabled');
+    submitBtn.removeAttribute('disabled');
+    guesses = []
+    guessDisplay(guesses)
+}
+
+const displayMessage = (message) => {
+    result.innerHTML = message;
+}
+
+const displayGuessDirection = (inputValue) => {
+    if(inputValue < randomNumber){
+        displayMessage("Go Higher >>")
+    } else{
+        displayMessage("Go Lower <<")
+    }
+}
+
